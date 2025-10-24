@@ -1,0 +1,259 @@
+ME: Please tell me what is this?
+
+import os
+
+os.environ['HANDS_ON_AI_SERVER'] = 'http://ollama.serveur.au'
+os.environ['HANDS_ON_AI_MODEL'] = 'granite3.2'
+os.environ['HANDS_ON_AI_API_KEY'] = input('Enter your API key: ')
+
+
+AI: Sure! Let’s break this down step by step
+
+import os
+
+This imports Python’s built-in os module, which provides functions to interact with the operating system. It allows your program to work with environment variables, file paths, and system configurations.
+
+os.environ['HANDS_ON_AI_SERVER'] = 'http://ollama.serveur.au'
+
+This line creates an environment variable named HANDS_ON_AI_SERVER and assigns it the value 'http://ollama.serveur.au'.
+That address likely represents the server your program will communicate with.
+By storing it in os.environ, other parts of your application can access it without embedding the URL directly in the code.
+
+os.environ['HANDS_ON_AI_MODEL'] = 'granite3.2'
+
+Here, another environment variable named HANDS_ON_AI_MODEL is set to 'granite3.2'.
+This defines which AI model the application should use when making requests to the specified server.
+
+os.environ['HANDS_ON_AI_API_KEY'] = input('Enter your API key: ')
+
+This line prompts the user to type in their API key. The entered value is stored as an environment variable named HANDS_ON_AI_API_KEY.
+An API key acts as a credential that authorizes the user to access the AI service.
+By saving it as an environment variable, the program can use it later for authentication without exposing it directly in the source code.
+
+Summary:
+This code configures three environment variables that define:
+
+The AI server’s address
+
+The specific model to use
+
+The user’s API key for authentication
+
+These variables allow your program to connect securely and flexibly to the external AI service.
+
+
+
+ME: Can you please tell me how do I get the ollama key?
+AI: That depends on how you’re running Ollama — through **Ollama Cloud** or on your **local machine**. The process differs for each.
+
+---
+
+### 1. If you’re using **Ollama Cloud (hosted version)**
+
+You’ll get an official API key from the Ollama website.
+
+**Steps:**
+
+1. Go to [https://ollama.com](https://ollama.com) and sign in or create an account.
+2. Open your **Account Settings** or **Developer/API** section.
+3. Click **Create API Key** or **Generate New Key**.
+4. Copy the generated key and keep it secure.
+5. You can add it to your system with one of these methods:
+
+   ```bash
+   export OLLAMA_API_KEY="sk_your_generated_key"
+   ```
+
+   or in Python:
+
+   ```python
+   import os
+   os.environ["OLLAMA_API_KEY"] = "sk_your_generated_key"
+   ```
+
+Once it’s set, your code can authenticate automatically when you connect to the Ollama Cloud API.
+
+---
+
+### 2. If you’re using **Ollama locally (self-hosted on your computer)**
+
+By default, the local version of Ollama **does not require an API key**.
+When you run it on your own system (for example, `ollama serve`), it listens on `http://localhost:11435` and accepts requests directly.
+
+So, if you’re the only user on that machine, you can connect without any key.
+
+**Example (no key needed):**
+
+```python
+import requests
+
+url = "http://localhost:11435/api/generate"
+data = {"model": "llama3", "prompt": "Hello"}
+response = requests.post(url, json=data)
+print(response.text)
+```
+
+If you want to add a layer of security (for instance, to prevent others on your network from accessing it), you can place Ollama behind a reverse proxy like **Nginx** or **Caddy** and configure a custom header such as `X-API-Key`. This isn’t built into Ollama itself but can be added manually.
+
+---
+
+**In summary:**
+
+* **Cloud Ollama:** Create and use an API key from your online account.
+* **Local Ollama:** No key required unless you add one yourself via a proxy setup.
+
+
+
+ME: Okay, Local Ollama.
+AI: If you’re using **Ollama locally**, here’s exactly how it works:
+
+---
+
+### 1. Default setup – No key needed
+
+When you install and run Ollama on your computer (for example by using `ollama serve`), it starts a local server that listens on port **11435** by default.
+Because it’s running only on your machine, it doesn’t require any authentication or API key.
+
+You can access it directly with a simple HTTP request, for example:
+
+```python
+import requests
+
+url = "http://localhost:11435/api/generate"
+data = {
+    "model": "llama3",
+    "prompt": "Hello from local Ollama!"
+}
+response = requests.post(url, json=data)
+print(response.text)
+```
+
+This will send the request straight to your locally hosted model.
+
+---
+
+### 2. Optional security (if shared or networked)
+
+If you allow other devices on your network to reach your Ollama server, you might want to add a basic form of protection.
+You can do this using a **reverse proxy** (like Nginx or Caddy) that checks for a specific header or key before forwarding the request.
+
+Example (conceptually with Nginx):
+
+```
+server {
+    listen 8080;
+    location / {
+        if ($http_x_api_key != "my_local_key") {
+            return 403;
+        }
+        proxy_pass http://localhost:11435;
+    }
+}
+```
+
+Now, only requests that include `X-API-Key: my_local_key` will reach your Ollama server.
+
+---
+
+### 3. Summary
+
+| Scenario                            | API Key Required | How to Connect                                 |
+| ----------------------------------- | ---------------- | ---------------------------------------------- |
+| Running Ollama on your own computer | No               | Use `http://localhost:11435` directly          |
+| Shared network or remote access     | Optional         | Add a reverse proxy that enforces a header key |
+
+So in your case, since you’re running it locally for personal use, **you don’t need an API key at all**. You can make requests straight to `localhost`.
+
+
+
+
+ME: Now tell me how do I use pyinputplus
+AI: `pyinputplus` is a Python library that helps you collect and validate user input safely. It works like the regular `input()` function, but it automatically checks that the user enters data in the correct format — for example, only numbers within a certain range, only from specific options, or not empty strings.
+
+Here’s a breakdown of how to use it:
+
+---
+
+### 1. Installation
+
+First, install it with pip:
+
+```bash
+pip install pyinputplus
+```
+
+---
+
+### 2. Basic input examples
+
+```python
+import pyinputplus as pyip
+
+age = pyip.inputInt("Enter your age: ")
+print(f"Age entered: {age}")
+
+height = pyip.inputFloat("Enter your height in meters: ")
+print(f"Height: {height}")
+
+name = pyip.inputStr("Enter your name: ")
+print(f"Hello, {name}")
+```
+
+* `inputInt()` only accepts integers.
+* `inputFloat()` only accepts decimal numbers.
+* `inputStr()` ensures a non-empty string is entered.
+
+If the user types something invalid (like a letter instead of a number), it automatically reprompts until valid input is provided.
+
+---
+
+### 3. Restricting the input range or values
+
+You can define what values are acceptable.
+
+```python
+score = pyip.inputInt("Enter your score (0–100): ", min=0, max=100)
+color = pyip.inputChoice(["red", "green", "blue"], prompt="Pick a color: ")
+```
+
+* `min` and `max` limit the range.
+* `inputChoice()` forces the user to choose from a given list.
+
+---
+
+### 4. Limiting attempts and adding timeouts
+
+If you want to stop asking after a few invalid tries or after a time limit:
+
+```python
+number = pyip.inputInt("Enter a number between 1–5: ", min=1, max=5, limit=3, timeout=10)
+```
+
+* `limit=3` means the user gets 3 chances before an exception is raised.
+* `timeout=10` means they have 10 seconds to respond before it stops waiting.
+
+---
+
+### 5. Special input types
+
+```python
+answer = pyip.inputYesNo("Do you want to continue? ")
+print(answer)  # returns 'yes' or 'no'
+
+date = pyip.inputDatetime("Enter a date (YYYY-MM-DD): ", formats=["%Y-%m-%d"])
+print(date)
+```
+
+These ensure the input matches a specific pattern — like yes/no answers or valid dates.
+
+---
+
+### Summary
+
+`pyinputplus` is helpful when you want:
+
+* Clean and validated input from users
+* Automatic re-prompting on errors
+* Control over allowed values, retries, and timeouts
+
+It’s essentially a safer, smarter replacement for `input()`, useful in interactive scripts or small applications.
